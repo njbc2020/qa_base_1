@@ -127,3 +127,15 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Dataset and Temp Files
+/data
+/model
+/.vs
+/.vscode
+.txt
+.embedding
+*.pkl
+.vs/
+.vscode/
+.rar
