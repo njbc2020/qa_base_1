@@ -133,9 +133,14 @@ dmypy.json
 /model
 /.vs
 /.vscode
-.txt
-.embedding
+*.txt
+*.embedding
 *.pkl
 .vs/
 .vscode/
-.rar
+*.rar
+*.bin
+*.png
+*.jpg
+/images
+*.html
