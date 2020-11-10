@@ -12,7 +12,7 @@ class Vocabulary(dict):
     """
 
     def __init__(self, vocabulary_file_name):
-        with open(vocabulary_file_name) as vocabulary_file:
+        with open(vocabulary_file_name, encoding="utf8") as vocabulary_file:
             for line in vocabulary_file:
                 key, value = line.split()
                 self[int(key)] = value
@@ -40,9 +40,9 @@ class QAData():
     """
 
     def __init__(self):
-        self.vocabulary = Vocabulary("./data/vocab_all.txt")
+        self.vocabulary = Vocabulary("P:/nj/wordEmbedding/vocab_all.txt")
         self.answers = pickle.load(open("./data/answers.pkl", 'rb'))
-        self.training_set = pickle.load(open("./data/train.pkl", 'rb'))
+        self.training_set = pickle.load(open("P:/pkl/final.pkl", 'rb'))
         self.dec_timesteps = 150
         self.enc_timesteps = 150
 
@@ -65,14 +65,32 @@ class QAData():
 
         questions = []
         good_answers = []
+        _answerPooling = []
+        badanswer=[]
+        for qa in self.training_set:
+            _answerPooling.append(qa['BadAnswers'])
         for j, qa in enumerate(self.training_set):
-            questions.extend([qa['question']] * len(qa['answers']))
-            good_answers.extend([self.answers[i] for i in qa['answers']])
+            questions.extend([qa['QuestionText']] * len(qa['GoodAnswers']))
+            good_answers.extend(qa['GoodAnswers'])
+            diff = len(qa['GoodAnswers']) - len(qa['BadAnswers'])
+            if diff >= 0:
+                # داده هایی که لیبل بد دارند به لیست اضافه میشوند
+                badanswer.extend(qa['BadAnswers'])
+                
+                # اگر دادهای بد کم بود
+                # به همان مقدار رندوم از داده های پولینک جواب بردار
+                # اگر داده های بد با خوب برابر بود عدد صفر است و اتفاقی نمیوفتد
+                badanswer.extend(random.sample(_answerPooling, diff)) 
+            if diff < 0:
+                # اگر داده های بد بیشتر از داده های خوب بودند
+                # به اندازه داده های خوب از داده های بد برمیداریم
+                # و به لیست اضافه میکنیم و بقیه را دور میریزیم
+                badanswer.extend(qa['BadAnswers'][:len(qa['GoodAnswers'])])
 
         # pad the question and answers
         questions = self.pad(questions, self.enc_timesteps)
         good_answers = self.pad(good_answers, self.dec_timesteps)
-        bad_answers = self.pad(random.sample(list(self.answers.values()), len(good_answers)), self.dec_timesteps)
+        bad_answers = self.pad(badanswer, self.dec_timesteps)
 
         return questions, good_answers, bad_answers
 

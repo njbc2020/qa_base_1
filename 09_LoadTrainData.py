@@ -52,77 +52,92 @@ def cleanText(txt):
     txt = _preparation.cleanText2(txt)
     return txt
 
+def textToIndex(txt):
+    txt = cleanText(txt)
+    sents = _preparation.token(txt)
+    ans = []
+    if sents != None and len(sents) > 0:
+        for _sent in sents:
+            if _sent != '':
+                words =_preparation.wordToken(_sent, replaceNumber=True, removeExtra=True, stopword=True)
+                for word in words:
+                    if word in vocab:
+                        ans.append(vocabulary[word])
+                    else:
+                        _w = _preparation.cleanText(word.replace("\u200c"," "))
+                        _w = _preparation.cleanText2(_w)
+                        _words = _preparation.wordToken(_w)
+                        for _word in _words:
+                            if _word in vocab:
+                                ans.append(vocabulary[_word])
+                            else:
+                                print("       \t Error \t ==> ",_word,"    ...")
+    return ans
+
 # این متد آبجکت (لیستی از جواب در فرمت پاندا) را ورودی میگیرد و پیش پردازش را روی آنها اعمال میکند
 def cleanAnswer(answers):
     _answer = []
     for answer in answers:
         txt = answer["AnswerText"]
-        txt = cleanText(txt)
-        sents = _preparation.token(txt)
-        ans = []
-        ans1= []
-        if sents != None and len(sents) > 0:
-            for _sent in sents:
-                if _sent != '':
-                    words =_preparation.wordToken(_sent, removeExtra=True, stopword=True)
-                    for word in words:
-                        if word in vocab:
-                            vocabulary
-                        else:
-                            _w = _preparation.cleanText(word.replace("\u200c"," "))
-                            _w = _preparation.cleanText2(_w)
-                            _words = _preparation.wordToken(_w)
-                            for _word in _words:
-                                if _word in vocab:
-                                    ans.append(_word)
-                                    ans1.append(vocabulary[_word])
-                                else:
-                                    print("       \t Error \t     ...")
-                    
+        textindex = textToIndex(txt)
+        _answer.append(textindex)
     return _answer
 
 
+_newQA_data = []
 for qa in qqaa:
+    _answer = qa["QuestionText"]
+    QuestionText = textToIndex(_answer)
+    _answer = ""
+    
     _bads = qa["BadAnswers"]
-    _bads = cleanAnswer(_bads)
-    _answerPooling.extend(_bads)
+    BadAnswers = cleanAnswer(_bads)
+    _bads = []
+    _goods = qa["GoodAnswers"]
+    GoodAnswers = cleanAnswer(_goods)
+    
+    qaData = {"QuestionText":QuestionText, "GoodAnswers":GoodAnswers, "BadAnswers":BadAnswers}
+    
+    _newQA_data.append(qaData)
 
+with open('P:/pkl/final.pkl','wb')as f:
+    pickle.dump(_newQA_data, f)
 print("________")
 
-for qa in qqaa:
-    _q = qa["QuestionText"]
-    q = _preparation.cleanText(_q)
-    q = _preparation.cleanText2(q, stopword=True)
+# for qa in qqaa:
+#     _q = qa["QuestionText"]
+#     q = _preparation.cleanText(_q)
+#     q = _preparation.cleanText2(q, stopword=True)
 
-    _goods = qa["GoodAnswers"]
-    _bads = qa["BadAnswers"]
+#     _goods = qa["GoodAnswers"]
+#     _bads = qa["BadAnswers"]
 
-    goods = cleanAnswer(_goods)
-    bads = cleanAnswer(_bads)
-    diff = len(goods) - len(bads)
-    # به تعداد داده های خوب سوال را در لیست ااضافه میکنیم
-    Question.extend(q * len(goods))
-    GoodsAnswers.extend(goods)
-    if diff >= 0:
-        # داده هایی که لیبل بد دارند به لیست اضافه میشوند
-        BadsAnswers.extend(bads)
+#     goods = cleanAnswer(_goods)
+#     bads = cleanAnswer(_bads)
+#     diff = len(goods) - len(bads)
+#     # به تعداد داده های خوب سوال را در لیست ااضافه میکنیم
+#     Question.extend(q * len(goods))
+#     GoodsAnswers.extend(goods)
+#     if diff >= 0:
+#         # داده هایی که لیبل بد دارند به لیست اضافه میشوند
+#         BadsAnswers.extend(bads)
         
-        # اگر دادهای بد کم بود
-        # به همان مقدار رندوم از داده های پولینک جواب بردار
-        # اگر داده های بد با خوب برابر بود عدد صفر است و اتفاقی نمیوفتد
-        BadsAnswers.extend(random.sample(_answerPooling, diff)) 
-    if diff < 0:
-        # اگر داده های بد بیشتر از داده های خوب بودند
-        # به اندازه داده های خوب از داده های بد برمیداریم
-        # و به لیست اضافه میکنیم و بقیه را دور میریزیم
-        BadsAnswers.extend(bads[:len(goods)])
+#         # اگر دادهای بد کم بود
+#         # به همان مقدار رندوم از داده های پولینک جواب بردار
+#         # اگر داده های بد با خوب برابر بود عدد صفر است و اتفاقی نمیوفتد
+#         BadsAnswers.extend(random.sample(_answerPooling, diff)) 
+#     if diff < 0:
+#         # اگر داده های بد بیشتر از داده های خوب بودند
+#         # به اندازه داده های خوب از داده های بد برمیداریم
+#         # و به لیست اضافه میکنیم و بقیه را دور میریزیم
+#         BadsAnswers.extend(bads[:len(goods)])
 
-# در نهایت داده های بدست آمده را در فایل باینری ذخیره میکنیم
-with open('data/Question.pkl','wb')as f:
-    pickle.dump(Question, f)
+# # در نهایت داده های بدست آمده را در فایل باینری ذخیره میکنیم
+# with open('data/Question.pkl','wb')as f:
+#     pickle.dump(Question, f)
 
-with open('data/GoodsAnswers.pkl','wb')as f:
-    pickle.dump(GoodsAnswers, f)
+# with open('data/GoodsAnswers.pkl','wb')as f:
+#     pickle.dump(GoodsAnswers, f)
 
-with open('data/BadsAnswers.pkl','wb')as f:
-    pickle.dump(BadsAnswers, f)
+# with open('data/BadsAnswers.pkl','wb')as f:
+#     pickle.dump(BadsAnswers, f)
