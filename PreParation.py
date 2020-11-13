@@ -6,27 +6,29 @@ from parsivar import Tokenizer, FindStems, Normalizer
 from gensim.models import Word2Vec
 import emoji
 
+
 class PreParation():
     _tokenizer = Tokenizer()
     sw = None  # Stop Words
-    correction = None # Correction Collection ازتمیخوام -> ازت میخوام
+    correction = None  # Correction Collection ازتمیخوام -> ازت میخوام
     _normalizer = None  # Normilizer ي --> ی
     _normalizer1 = None  # Normilizer
     _tokenizer1 = None  # Hazm Tokenizer
     _tokenizer2 = None  # Hazm Tokenizer
     _stemmer = None  # Stemmer گفت --> گو
-    
-    extraChar1 = ["؛","؟",",",";","!","?",".",":","،"]
-    extraChar2 = ["'",'"',"+","{","}","-","(",")","$","#",'/',"\\","@","*","٪","÷","¿","[","]","«","»","^","`","|","¡","˘","¤","£","<",">","¯","°","٭","٫"]
+
+    extraChar1 = ["؛", "؟", ",", ";", "!", "?", ".", ":", "،"]
+    extraChar2 = ["'", '"', "+", "{", "}", "-", "(", ")", "$", "#", '/', "\\", "@", "*", "٪", "÷",
+                  "¿", "[", "]", "«", "»", "^", "`", "|", "¡", "˘", "¤", "£", "<", ">", "¯", "°", "٭", "٫"]
     _emojiList = None
-    
+
     # Regular Experssion
     persianmixRE = None
     numRE = None
     removeIrritateRE = None
     emojiRE = None
-    
-    #Embedding
+
+    # Embedding
     w2vModel = None
 
     # این کلاس برای مقدار دهی اولیه مورد استفاده قرار میگیرد
@@ -34,17 +36,20 @@ class PreParation():
         self.sw = pd.read_csv("data/stop_words/stpwrd.csv")
         # از فایل مربوطه ستون واژه های ایست را انتخاب میکنیم و به صورت لیست رشته ای باز میگردانیم
         self.sw = self.sw["StopWord"].astype(str).values.tolist()
-        
-        self.correction = pd.read_csv("data/Vocab_dataset_1.csv", index_col=0, header=None, squeeze=True).to_dict()
-        
+
+        self.correction = pd.read_csv(
+            "data/Vocab_dataset_1.csv", index_col=0, header=None, squeeze=True).to_dict()
+
         self._normalizer = Normalizer(
             statistical_space_correction=True, date_normalizing_needed=True)
         self._normalizer1 = HazmNormal()
-        self._tokenizer1 = HazmTokenizer(join_verb_parts=False, replace_hashtags=True, replace_numbers=True, separate_emoji=True)
-        self._tokenizer2 = HazmTokenizer(join_verb_parts=False, replace_hashtags=True, replace_numbers=False, separate_emoji=True)
+        self._tokenizer1 = HazmTokenizer(
+            join_verb_parts=False, replace_hashtags=True, replace_numbers=True, separate_emoji=True)
+        self._tokenizer2 = HazmTokenizer(
+            join_verb_parts=False, replace_hashtags=True, replace_numbers=False, separate_emoji=True)
         self._stemmer = FindStems()
-        
-        #region Regular Experssion
+
+        # region Regular Experssion
         # عبارتی که کلمات و اعداد به هم چسبیده را از هم جدا میکند
         self.persianmixRE = re.compile(
             "(([\u0600-\u06FF]+)([0-9]+)|([0-9]+)([\u0600-\u06FF]+)|([a-zA-Z]+)([0-9]+)|([0-9]+)([a-zA-Z]+))")
@@ -52,47 +57,48 @@ class PreParation():
         self.numRE = re.compile('\d')
         self.removeIrritateRE = re.compile(r'(.)\1{2,}', re.IGNORECASE)
         # Emoji
-        self.emojiRE = re.compile(pattern = "["
-            u"\U0001F600-\U0001F64F"  # emoticons
-            u"\U0001F300-\U0001F5FF"  # symbols & pictographs
-            u"\U0001F680-\U0001F6FF"  # transport & map symbols
-            u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
-                            "]+", flags = re.UNICODE)
-        #endregion
+        self.emojiRE = re.compile(pattern="["
+                                  u"\U0001F600-\U0001F64F"  # emoticons
+                                  u"\U0001F300-\U0001F5FF"  # symbols & pictographs
+                                  u"\U0001F680-\U0001F6FF"  # transport & map symbols
+                                  u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
+                                  "]+", flags=re.UNICODE)
+        # endregion
         self._emojiList = list(emoji.UNICODE_EMOJI.keys())
         #self.w2vModel = Word2Vec.load('P:/pkl/newSentence.bin')
-        
+
         print("\n ** Persian Text PreParation by Naghme Jamali ** \n")
-    
+
     # Remove Multiple Space - "Salam   khobi?" -> "Salam Khobi?"
     def RemoveMultipleSpace(self, txt):
         return re.sub(' +', ' ', txt)
-    
+
     # Remove Emoji
     def RemoveEmoji(self, txt):
         for emoji in self._emojiList:
             txt = txt.replace(emoji, ' EMOJI ')
         return txt
-        #return self.RemoveMultipleSpace(self.emojiRE.sub(r' ', txt))
-    
+        # return self.RemoveMultipleSpace(self.emojiRE.sub(r' ', txt))
+
     def RemoveExtraChar1(self, txt):
         for i in self.extraChar1:
-            txt = txt.replace(i," ")
+            txt = txt.replace(i, " ")
         return txt
-    
+
     def RemoveExtraChar2(self, txt):
         for i in self.extraChar2:
-            txt = txt.replace(i," ")
+            txt = txt.replace(i, " ")
         return txt
-    
+
     # تبدیل شماره ها به انگلیسی
     def NumberEN(self, input):
         return input.replace("۰", "0").replace("۱", "1").replace("۲", "2").replace("۳", "3").replace("۴", "4").replace("۵", "5").replace("٥", "5").replace("۶", "6").replace("v", "7").replace("۷", "7").replace("۸", "8").replace("۹", "9")
-    
+
     # حذف ایست واژه در زبان فارسی
     def stop_word(self, data):
         text = self.RemoveMultipleSpace(data)
-        text = self.RemoveMultipleSpace(' '.join([word for word in data.split() if word not in self.sw]))
+        text = self.RemoveMultipleSpace(
+            ' '.join([word for word in data.split() if word not in self.sw]))
         return text.strip()
         # if text != " " and text != "":
         #     return ' '.join([word for word in text.split() if word not in self.sw]).strip()
@@ -120,7 +126,7 @@ class PreParation():
         return self.removeIrritateRE.sub(r'\1', txt)
 
     def CorrectionText(self, texts):
-        _texts=[]
+        _texts = []
         for _text in self.wordToken(texts):
             if _text in self.correction:
                 _texts.append(self.correction[_text])
@@ -132,26 +138,27 @@ class PreParation():
     # نرمال سازی داده ها
     # حذف حروف و نشانه های اضافه
     # در ورود یک فلگ میزاریم برای مواقعی که میخواهیم از حذف ایست واژه ها استفاده کنیم
-    def cleanText(self, txt, stopword=False):
+    def cleanText(self, txt, stopword=False, isSplitNumber=True):
         #txt = txt.replace("\u200c", " ")
         txt = txt.replace("آ", "ا")
-        if stopword: # آیا ایست واژه حذف شوند؟
+        if stopword:  # آیا ایست واژه حذف شوند؟
             txt = self.stop_word(txt)
-        
-        txt = self.removeIrritate(txt) # حذف کاراکترهای تکراری
+
+        txt = self.removeIrritate(txt)  # حذف کاراکترهای تکراری
         txt = self.RemoveEmoji(txt)
         txt = self._normalizer1.normalize(txt)
-        
+
         txt = self.RemoveExtraChar2(txt)
         txt = self.RemoveMultipleSpace(txt)
         txt = self.NumberEN(txt)
-        
+
         txt1 = []
         for t in self.wordToken(txt):
-            try:
-                t = self.splitnumber(t) # جداسازی اعداد از متن در یک کلمه
-            except:
-                pass
+            if isSplitNumber:
+                try:
+                    t = self.splitnumber(t)  # جداسازی اعداد از متن در یک کلمه
+                except:
+                    pass
             for _t in t.split():
                 w1 = self.Stem(_t)
                 txt1.append(w1)
@@ -168,12 +175,12 @@ class PreParation():
         _txt = txt
         if stopword:
             _txt = self.stop_word(txt)
-        
+
         # در این خط، نیم فاصله ای که ابزارهای پارسی وار و هضم ایجاد کرده اند را به فاصله تبدیل میکنیم
         #_txt = _txt.replace("\u200c", " ")
         _txt = ' '.join(self.wordToken(_txt, replaceNumber=True))
         _txt = self.CorrectionText(_txt)
-        
+
         _txt = self._normalizer1.normalize(_txt)
         _txt = self.NumberEN(_txt)
         if stopword:
@@ -189,18 +196,28 @@ class PreParation():
             _txt = self.RemoveMultipleSpace(_txt).strip()
             sents.append(_txt)
         return sents
-    
+
+    # جایگزینی اعداد      Exmaple: 5 عدد  --> NUM1 عدد
+    # هضم نمیتواند بعضی از اعداد را تشحیص دهد
+    # برای همین این تابع را نوشتیم تا آن را پوشش دهد
+    def ReplaceNumber(self, input1):
+        if input1.isnumeric():
+            return "NUM" + str(len(input1))
+        else:
+            return input1
+
     def wordToken(self, txt, replaceNumber=False, removeExtra=False, stopword=False):
         if removeExtra:
             txt = self.RemoveExtraChar1(txt)
         txt = self.RemoveMultipleSpace(txt).strip()
-        
+
         _words = []
         if replaceNumber:
-            _words.extend(self._tokenizer1.tokenize(txt))
+            _words.extend(self.ReplaceNumber(x)
+                          for x in self._tokenizer1.tokenize(txt))
         else:
             _words.extend(self._tokenizer2.tokenize(txt))
-        
+
         if stopword:
             return [word for word in _words if word not in self.sw]
         else:

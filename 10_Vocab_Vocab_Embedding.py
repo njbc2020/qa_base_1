@@ -94,16 +94,16 @@ for _v in Vocab10:
     i+=1
 
 embeddingsNp= np.array(Vectors)
-with open('P:/nj/wordEmbedding/wordEmbedding.embedding', 'wb') as f:
+with open('P:/nj/wordEmbedding/wordEmbedding_1.embedding', 'wb') as f:
     np.save(f, embeddingsNp)
 
 
-f1 = open('P:/nj/wordEmbedding/vocab.txt', 'w', encoding='utf-8')
+f1 = open('P:/nj/wordEmbedding/vocab_1.txt', 'w', encoding='utf-8')
 s1 = '\n'.join(Vocab10)
 f1.write(s1)
 f1.close()
 
-f2 = open('P:/nj/wordEmbedding/vocab_all.txt', 'w', encoding='utf-8')
+f2 = open('P:/nj/wordEmbedding/vocab_all_1.txt', 'w', encoding='utf-8')
 s1 = '\n'.join(vocab_all)
 f2.write(s1)
 f2.close()

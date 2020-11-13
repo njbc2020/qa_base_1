@@ -19,10 +19,11 @@ def main(mode='test', question=None, answers=None):
     """
 
     # get the train and predict model model
-    vocabulary = Vocabulary("P:/nj/wordEmbedding/vocab_all.txt")
-    embedding_file = "P:/nj/wordEmbedding/wordEmbedding.embedding"
+    vocabulary = Vocabulary("P:/nj/wordEmbedding/vocab_all_1.txt")
+    embedding_file = "P:/nj/wordEmbedding/wordEmbedding_1.embedding"
     qa_model = QAModel()
-    train_model, predict_model = qa_model.get_lstm_cnn_model(embedding_file, len(vocabulary)-1)
+    vocab_size = len(vocabulary)
+    train_model, predict_model = qa_model.get_lstm_cnn_model(embedding_file, len(vocabulary))
 
     epoch = 1
     if mode == 'train':

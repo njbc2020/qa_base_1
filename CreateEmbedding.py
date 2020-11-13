@@ -69,7 +69,7 @@ vocab = []
 # vocab = []
 # s = time.time()
 # for w in sentence:
-#     if k % 1000 == 0:
+#     if k % 10000 == 0:
 #         e = time.time()
 #         print(k," \t Time: ",e-s,"s")
 #         s = time.time()

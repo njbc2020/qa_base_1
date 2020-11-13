@@ -40,7 +40,7 @@ class QAData():
     """
 
     def __init__(self):
-        self.vocabulary = Vocabulary("P:/nj/wordEmbedding/vocab_all.txt")
+        self.vocabulary = Vocabulary("P:/nj/wordEmbedding/vocab_all_1.txt")
         self.answers = pickle.load(open("./data/answers.pkl", 'rb'))
         self.training_set = pickle.load(open("P:/pkl/final.pkl", 'rb'))
         self.dec_timesteps = 150
@@ -68,7 +68,12 @@ class QAData():
         _answerPooling = []
         badanswer=[]
         for qa in self.training_set:
-            _answerPooling.append(qa['BadAnswers'])
+            _tmpPolling = qa['BadAnswers']
+            if (_tmpPolling != None) and (len(_tmpPolling)>0):
+                for _bad in _tmpPolling:
+                    if len(_bad) > 2:
+                        _answerPooling.append(_bad)
+        random.shuffle(_answerPooling)
         for j, qa in enumerate(self.training_set):
             questions.extend([qa['QuestionText']] * len(qa['GoodAnswers']))
             good_answers.extend(qa['GoodAnswers'])

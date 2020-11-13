@@ -89,6 +89,19 @@ class QAModel():
         enc_timesteps = 150
         dec_timesteps = 150
         weights = np.load(embedding_file)
+        np.savetxt("weights.csv", weights, delimiter=",")
+        var0 = weights[0]
+        var1 = weights[1]
+        aaa = (len(weights)-5)
+        vall = []
+        vall.append(weights[aaa])
+        vall.append(weights[aaa+ 1])
+        vall.append(weights[aaa+ 2])
+        vall.append(weights[aaa+ 3])
+        lastt = aaa + 4
+        vall.append(weights[lastt])
+        #lasttt = aaa + 5
+        #vall.append(weights[lasttt])
 
         # initialize the question and answer shapes and datatype
         question = Input(shape=(enc_timesteps,), dtype='int32', name='question_base')
