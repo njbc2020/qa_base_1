@@ -69,6 +69,7 @@ with open('data/vocab_Json_DataSet.pkl','wb')as f:
 new_model = Word2Vec.load('P:/pkl/newSentence.bin')
 
 Vocab10=[]
+Vectors.append(new_model.wv["نغمه"])
 for word in Vocab1:
     if word.strip() in new_model.wv.vocab:
         Vectors.append(new_model.wv[word.strip()])

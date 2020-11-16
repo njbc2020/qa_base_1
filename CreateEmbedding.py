@@ -123,8 +123,8 @@ vocab = []
 
 # load model
 new_model = Word2Vec.load('P:/pkl/newSentence.bin')
-a = new_model.wv.most_similar("پوشک")
-b = new_model.wv.most_similar("دود")
+a = new_model.wv.most_similar("کرونا")
+b = new_model.wv.most_similar("نغمه")
 c = new_model.wv.most_similar("پاسداران")
 d = new_model.wv.most_similar("باو")
 

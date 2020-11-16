@@ -42,7 +42,12 @@ class QAData():
     def __init__(self):
         self.vocabulary = Vocabulary("P:/nj/wordEmbedding/vocab_all_1.txt")
         self.answers = pickle.load(open("./data/answers.pkl", 'rb'))
-        self.training_set = pickle.load(open("P:/pkl/final.pkl", 'rb'))
+        dataset = pickle.load(open("P:/pkl/final.pkl", 'rb'))
+        size_dataset = len(dataset)
+        size_train = int(size_dataset * 0.8)
+        size_test = int(size_dataset - size_train)
+        print("Dataset Size = ",size_dataset,"\tTrain Size = ",size_train, "\tTest Size = ",size_test)
+        self.training_set = dataset[:size_test]
         self.dec_timesteps = 150
         self.enc_timesteps = 150
 

@@ -7,6 +7,7 @@ from keras.models import Model
 import numpy as np
 
 class QAModel():
+    
     def get_cosine_similarity(self):
         dot = lambda a, b: K.batch_dot(a, b, axes=1)
         return lambda x: dot(x[0], x[1]) / K.maximum(K.sqrt(dot(x[0], x[0]) * dot(x[1], x[1])), K.epsilon())
@@ -64,9 +65,9 @@ class QAModel():
 
         # return training and prediction model
         training_model = Model(inputs=[question, answer_good, answer_bad], outputs=loss, name='training_model')
-        training_model.compile(loss=lambda y_true, y_pred: y_pred, optimizer="rmsprop")
+        training_model.compile(loss=lambda y_true, y_pred: y_pred, optimizer="rmsprop",metrics=['acc'])
         prediction_model = Model(inputs=[question, answer_good], outputs=good_similarity, name='prediction_model')
-        prediction_model.compile(loss=lambda y_true, y_pred: y_pred, optimizer="rmsprop")
+        prediction_model.compile(loss=lambda y_true, y_pred: y_pred, optimizer="rmsprop",metrics=['acc'])
 
         return training_model, prediction_model
 
@@ -151,8 +152,8 @@ class QAModel():
 
         # return the training and prediction model
         prediction_model = Model(inputs=[question, answer_good], outputs=good_similarity, name='prediction_model')
-        prediction_model.compile(loss=lambda y_true, y_pred: y_pred, optimizer="rmsprop")
+        prediction_model.compile(loss=lambda y_true, y_pred: y_pred, optimizer="rmsprop",metrics=['acc'])
         training_model = Model(inputs=[question, answer_good, answer_bad], outputs=loss, name='training_model')
-        training_model.compile(loss=lambda y_true, y_pred: y_pred, optimizer="rmsprop")
+        training_model.compile(loss=lambda y_true, y_pred: y_pred, optimizer="rmsprop",metrics=['acc'])
 
         return training_model, prediction_model
